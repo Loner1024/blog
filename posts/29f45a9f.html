@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="本文翻译自 Steve Cope 的《Understanding HTTP Basics》，翻译及发布已获作者授权。 翻译为本人原创，未经授权，禁止转载。 原文地址：http:&#x2F;&#x2F;www.steves-internet-guide.com&#x2F;http-basics&#x2F;  HTTP 即超文本传输协议，用于 Web 数据传输。 它是 Web 开发人员必须了解的关键协议，它有着十分广泛的应用，例如在 IO">
+<meta property="og:type" content="article">
+<meta property="og:title" content="HTTP基础&#x2F;">
+<meta property="og:url" content="https://loner1024.github.io/blog/posts/29f45a9f">
+<meta property="og:site_name" content="解添昊的博客">
+<meta property="og:description" content="本文翻译自 Steve Cope 的《Understanding HTTP Basics》，翻译及发布已获作者授权。 翻译为本人原创，未经授权，禁止转载。 原文地址：http:&#x2F;&#x2F;www.steves-internet-guide.com&#x2F;http-basics&#x2F;  HTTP 即超文本传输协议，用于 Web 数据传输。 它是 Web 开发人员必须了解的关键协议，它有着十分广泛的应用，例如在 IO">
+<meta property="og:locale">
+<meta property="og:image" content="https://loner1024.github.io/blog/posts/29f45a9f/HTTP%E5%9F%BA%E7%A1%80/HTTP-Protocol-Basics.jpg">
+<meta property="og:image" content="https://loner1024.github.io/blog/HTTP%E5%9F%BA%E7%A1%80/http-request-response-structure.jpg">
+<meta property="og:image" content="https://loner1024.github.io/blog/posts/29f45a9f/HTTP%E5%9F%BA%E7%A1%80/url-example-1.jpg">
+<meta property="og:image" content="https://loner1024.github.io/blog/posts/29f45a9f/HTTP%E5%9F%BA%E7%A1%80/url-example-with-port.jpg">
+<meta property="og:image" content="https://loner1024.github.io/blog/posts/29f45a9f/HTTP%E5%9F%BA%E7%A1%80/browser-request.jpg">
+<meta property="og:image" content="https://loner1024.github.io/blog/posts/29f45a9f/HTTP%E5%9F%BA%E7%A1%80/browser-response.jpg">
+<meta property="og:image" content="https://loner1024.github.io/blog/posts/29f45a9f/HTTP%E5%9F%BA%E7%A1%80/HTTP-Request-Response-example.jpg">
+<meta property="article:published_time" content="2020-01-04T16:00:00.000Z">
+<meta property="article:modified_time" content="2022-03-05T19:49:50.553Z">
+<meta property="article:author" content="解添昊">
+<meta property="article:tag" content="HTTP">
+<meta property="article:tag" content="Network">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://loner1024.github.io/blog/posts/29f45a9f/HTTP%E5%9F%BA%E7%A1%80/HTTP-Protocol-Basics.jpg">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/blog/images/favicon.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/blog/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/blog/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>HTTP基础/</title>
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/blog/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 6.0.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/blog/">Home</a></li><!--
+     --><!--
+       --><li><a href="/blog/about/">About</a></li><!--
+     --><!--
+       --><li><a href="/blog/archives/">Writing</a></li><!--
+     --><!--
+       --><li><a href="/blog/projects_url">Projects</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="Previous post" href="/blog/posts/4a17b156"><i class="fas fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Share post" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://loner1024.github.io/blog/posts/29f45a9f"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://loner1024.github.io/blog/posts/29f45a9f&text=HTTP基础/"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://loner1024.github.io/blog/posts/29f45a9f&title=HTTP基础/"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://loner1024.github.io/blog/posts/29f45a9f&is_video=false&description=HTTP基础/"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=HTTP基础/&body=Check out this article: https://loner1024.github.io/blog/posts/29f45a9f"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://loner1024.github.io/blog/posts/29f45a9f&title=HTTP基础/"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://loner1024.github.io/blog/posts/29f45a9f&title=HTTP基础/"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://loner1024.github.io/blog/posts/29f45a9f&title=HTTP基础/"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://loner1024.github.io/blog/posts/29f45a9f&title=HTTP基础/"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://loner1024.github.io/blog/posts/29f45a9f&name=HTTP基础/&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://loner1024.github.io/blog/posts/29f45a9f&t=HTTP基础/"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%A6%82%E4%BD%95%E8%BF%90%E8%A1%8C"><span class="toc-number">1.</span> <span class="toc-text">如何运行</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E8%AF%B7%E6%B1%82%E5%92%8C%E5%93%8D%E5%BA%94%E7%9A%84%E7%BB%93%E6%9E%84"><span class="toc-number">2.</span> <span class="toc-text">请求和响应的结构</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#HTTP-%E8%AF%B7%E6%B1%82"><span class="toc-number">3.</span> <span class="toc-text">HTTP 请求</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#HTTP-vs-URL"><span class="toc-number">4.</span> <span class="toc-text">HTTP vs URL</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#HTTP-%E5%93%8D%E5%BA%94%E5%92%8C%E5%93%8D%E5%BA%94%E7%A0%81"><span class="toc-number">5.</span> <span class="toc-text">HTTP 响应和响应码</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E8%AF%B7%E6%B1%82-%E5%93%8D%E5%BA%94-%E4%BE%8B%E5%AD%90"><span class="toc-number">6.</span> <span class="toc-text">请求-响应 例子</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E8%AF%B7%E6%B1%82%E7%B1%BB%E5%9E%8B"><span class="toc-number">7.</span> <span class="toc-text">请求类型</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E8%AF%B7%E6%B1%82%E7%B1%BB%E5%9E%8B%E3%80%81%E6%96%B9%E6%B3%95%E5%92%8C%E5%8A%A8%E8%AF%8D"><span class="toc-number">8.</span> <span class="toc-text">请求类型、方法和动词</span></a></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        HTTP基础/
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">解添昊</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2020-01-04T16:00:00.000Z" itemprop="datePublished">2020-01-05</time>
+        
+      
+    </div>
+
+
+      
+
+      
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link-link" href="/blog/tags/HTTP/" rel="tag">HTTP</a>, <a class="tag-link-link" href="/blog/tags/Network/" rel="tag">Network</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <blockquote>
+<p>本文翻译自 Steve Cope 的《Understanding HTTP Basics》，翻译及发布已获作者授权。</p>
+<p>翻译为本人原创，未经授权，禁止转载。</p>
+<p>原文地址：<a target="_blank" rel="noopener" href="http://www.steves-internet-guide.com/http-basics/">http://www.steves-internet-guide.com/http-basics/</a></p>
+</blockquote>
+<p>HTTP 即超文本传输协议，用于 Web 数据传输。</p>
+<p>它是 Web 开发人员必须了解的关键协议，它有着十分广泛的应用，例如在 IOT（物联网） 应用中传输数据和命令。</p>
+<p>HTTP 协议的第一个版本只有一种方法，也就是 GET，使用这个方法将从服务器请求（request）一个页面。</p>
+<p>对应的服务器的响应（response）始终是 HTML 页面。-<a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/%E8%B6%85%E6%96%87%E6%9C%AC%E4%BC%A0%E8%BE%93%E5%8D%8F%E8%AE%AE">Wiki</a></p>
+<p>为了让你了解 HTTP 协议的启动过程有多简单，请看一下只有一页的原始规范：<a target="_blank" rel="noopener" href="https://www.w3.org/Protocols/HTTP/AsImplemented.html">Original specification</a></p>
+<p>从最初的 0.9 版本开始，已经有了很多个 HTTP 协议版本。</p>
+<p>目前的版本是 1.1，最近一次的修订在 2014 年，更多的信息可以查看<a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/%E8%B6%85%E6%96%87%E6%9C%AC%E4%BC%A0%E8%BE%93%E5%8D%8F%E8%AE%AE">Wiki</a></p>
+<h1 id="如何运行"><a href="#如何运行" class="headerlink" title="如何运行"></a>如何运行</h1><p>像大多数 Internet 协议一样，HTTP 是使用客户端-服务器模式（即 C&#x2F;S 模式）的基于方法和响应信息的协议。</p>
+<p><img src="/blog/posts/29f45a9f/HTTP%E5%9F%BA%E7%A1%80/HTTP-Protocol-Basics.jpg" alt="HTTP-Protocol-Basics"></p>
+<p>客户端发出请求，服务器作出响应。</p>
+<p>HTTP 协议也是一种无状态协议，这意味着服务器不需要存储会话信息，每个请求都彼此独立。参见-<a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/%E6%97%A0%E7%8A%B6%E6%80%81%E5%8D%8F%E8%AE%AE">无状态协议</a></p>
+<p>这表示：</p>
+<ul>
+<li>所有的请求都来自客户端（浏览器）</li>
+<li>服务器响应请求</li>
+<li>以可读文本的形式来请求和响应</li>
+<li>请求之间彼此独立，服务器无需跟踪请求</li>
+</ul>
+<h1 id="请求和响应的结构"><a href="#请求和响应的结构" class="headerlink" title="请求和响应的结构"></a>请求和响应的结构</h1><p>请求和响应是相同的，如下图所示：</p>
+<p><img src="/blog/HTTP%E5%9F%BA%E7%A1%80/http-request-response-structure.jpg" alt="http-request-response-structure"></p>
+<p>一个请求由这些组成：</p>
+<p>请求或方法 + 标题（可选）+ 正文（可选）</p>
+<p>一个响应由这些组成：</p>
+<p>状态码 + 标题（可选）+ 正文（可选）</p>
+<p>简单的 CRLF（回车和换行）组合被用来区分各个部分，单个空白行用于指示标题的结尾。</p>
+<p>如果请求或响应中包含正文，则应该在标题中指出。</p>
+<blockquote>
+<p>消息中允许消息正文的规则因请求和响应而不同。头字段中的 Content-Length 或 Transfer-Encoding 是请求中消息体存在的信号。请求消息的构成与方法语义是独立的，即使方法没有定义任何消息体的使用。<em>– RFC 7230 section 3.3.</em></p>
+</blockquote>
+<p>注意：消息正文后没有 CRLF</p>
+<h1 id="HTTP-请求"><a href="#HTTP-请求" class="headerlink" title="HTTP 请求"></a>HTTP 请求</h1><p>我们之前介绍了一般的请求响应格式，现在我们将更加详细到的介绍请求消息。</p>
+<p>起始行是强制性的，它的结构如下：</p>
+<p>方法 + 资源路径 + 协议版本</p>
+<p>例如我们尝试访问 <a target="_blank" rel="noopener" href="http://www.testsite5.com/">www.testsite5.com</a> 上的 testpage.htm，起始行应该是这样的：</p>
+<p><strong>GET &#x2F;testpage.htm HTTP&#x2F;1.1</strong></p>
+<ul>
+<li>GET 是方法</li>
+<li>&#x2F;tesspage.htm 是资源的相对路径</li>
+<li>HTTP&#x2F;1.1 是使用的协议版本</li>
+</ul>
+<p>注意：</p>
+<ol>
+<li>相对路径不包含域名</li>
+<li>浏览器使用我们输入的 URL 来创建资源的 URL</li>
+</ol>
+<p><strong>URL</strong> 即统一资源定位符。</p>
+<p>浏览器不会显示实际的 http 请求，只有用特殊工具才能看到请求。</p>
+<h1 id="HTTP-vs-URL"><a href="#HTTP-vs-URL" class="headerlink" title="HTTP vs URL"></a>HTTP vs URL</h1><p>大多数人都熟悉在浏览器中输入 URL，就像这样：</p>
+<p><img src="/blog/posts/29f45a9f/HTTP%E5%9F%BA%E7%A1%80/url-example-1.jpg" alt="url-example-1"></p>
+<p>URL 通常包含被浏览器隐藏的端口号，但是你可以手动添加它：</p>
+<p><img src="/blog/posts/29f45a9f/HTTP%E5%9F%BA%E7%A1%80/url-example-with-port.jpg" alt="url-example-with-port"></p>
+<p>输入 URL 将告诉浏览器要定位的资源的地址以及用于检索资源的协议。</p>
+<p>http 是将资源（网页、图片、视频等）从服务器传输到客户端的协议。</p>
+<h1 id="HTTP-响应和响应码"><a href="#HTTP-响应和响应码" class="headerlink" title="HTTP 响应和响应码"></a>HTTP 响应和响应码</h1><p>每一个请求都有一个响应。响应由这些组成：</p>
+<ul>
+<li>状态码和描述</li>
+<li>一个或者更多的标题（header）（可选）</li>
+<li>可以是很多行、可包含二进制信息的正文（可选）</li>
+</ul>
+<p>响应状态码分为 5 类，每一类都有含义和三位数的代码：</p>
+<ul>
+<li>1xx – 信息</li>
+<li>2xx – 成功</li>
+<li>3xx – 重定向</li>
+<li>4xx – 客户端错误</li>
+<li>5xx – 服务端错误</li>
+</ul>
+<p>例如，成功的页面请求会返回 200，而不成功的则返回 400。</p>
+<p>你可以在这里找到完整的状态码列表和含义：<a target="_blank" rel="noopener" href="https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Status">here</a></p>
+<h1 id="请求-响应-例子"><a href="#请求-响应-例子" class="headerlink" title="请求-响应 例子"></a>请求-响应 例子</h1><p>我们访问一个简单的网页并检查它的请求和响应。</p>
+<p>这是在地址栏输入的内容：</p>
+<p><img src="/blog/posts/29f45a9f/HTTP%E5%9F%BA%E7%A1%80/browser-request.jpg" alt="browser-request"></p>
+<p>这是浏览器显示的响应：</p>
+<p><img src="/blog/posts/29f45a9f/HTTP%E5%9F%BA%E7%A1%80/browser-response.jpg" alt="browser-response"></p>
+<p>这是后台发生的 http 请求响应：</p>
+<p><img src="/blog/posts/29f45a9f/HTTP%E5%9F%BA%E7%A1%80/HTTP-Request-Response-example.jpg" alt="HTTP-Request-Response-example"></p>
+<p>注意，请求头是由浏览器自动插入的，响应头是有服务器插入的。</p>
+<p>请求中没有正文内容，响应中的正文内容是网页，并显示在浏览器中。</p>
+<h1 id="请求类型"><a href="#请求类型" class="headerlink" title="请求类型"></a>请求类型</h1><p>到现在为止，我们还没有提到请求类型，但是在示例中我们已经看到了 GET 类型。</p>
+<p>GET 类型用于从 web 服务器请求资源。</p>
+<p>GET 是最常用的请求类型，并且是原始 HTTP 规范中唯一的请求类型。</p>
+<h1 id="请求类型、方法和动词"><a href="#请求类型、方法和动词" class="headerlink" title="请求类型、方法和动词"></a>请求类型、方法和动词</h1><p>HTTP 协议支持 8 种请求类型，在文档中也被称为方法或动词。</p>
+<ul>
+<li>GET – 从服务器请求资源</li>
+<li>POST – 向服务器提交资源</li>
+<li>PUT – 替换资源</li>
+<li>DELETE – 删除资源</li>
+<li>HEAD – 类似于 GET ，但只返回头（header），不返回正文（content）</li>
+<li>OPTIONS – 用于客户端查看服务器的性能。 这个方法会请求服务器返回该资源所支持的所有 HTTP 请求方法</li>
+<li>PATCH – 类似于 PUT，但一般用于对资源的局部更新</li>
+<li>TRACE – 回显服务器收到的请求</li>
+</ul>
+<p>如今，在网络上，POST（提交表单） 和 GET（获取网页） 是最常用的方法</p>
+<p>在使用 Web 和 IOT APIs 时，将使用其他的方法。</p>
+<p>关于它们，在 <a target="_blank" rel="noopener" href="https://www.w3school.com.cn/tags/html_ref_httpmethods.asp">w3 school</a> 上很好的概述，在 Microsoft <a target="_blank" rel="noopener" href="https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Methods">MDN</a> 网站上有更详细的介绍。</p>
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/blog/">Home</a></li>
+         
+          <li><a href="/blog/about/">About</a></li>
+         
+          <li><a href="/blog/archives/">Writing</a></li>
+         
+          <li><a href="/blog/projects_url">Projects</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%A6%82%E4%BD%95%E8%BF%90%E8%A1%8C"><span class="toc-number">1.</span> <span class="toc-text">如何运行</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E8%AF%B7%E6%B1%82%E5%92%8C%E5%93%8D%E5%BA%94%E7%9A%84%E7%BB%93%E6%9E%84"><span class="toc-number">2.</span> <span class="toc-text">请求和响应的结构</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#HTTP-%E8%AF%B7%E6%B1%82"><span class="toc-number">3.</span> <span class="toc-text">HTTP 请求</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#HTTP-vs-URL"><span class="toc-number">4.</span> <span class="toc-text">HTTP vs URL</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#HTTP-%E5%93%8D%E5%BA%94%E5%92%8C%E5%93%8D%E5%BA%94%E7%A0%81"><span class="toc-number">5.</span> <span class="toc-text">HTTP 响应和响应码</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E8%AF%B7%E6%B1%82-%E5%93%8D%E5%BA%94-%E4%BE%8B%E5%AD%90"><span class="toc-number">6.</span> <span class="toc-text">请求-响应 例子</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E8%AF%B7%E6%B1%82%E7%B1%BB%E5%9E%8B"><span class="toc-number">7.</span> <span class="toc-text">请求类型</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E8%AF%B7%E6%B1%82%E7%B1%BB%E5%9E%8B%E3%80%81%E6%96%B9%E6%B3%95%E5%92%8C%E5%8A%A8%E8%AF%8D"><span class="toc-number">8.</span> <span class="toc-text">请求类型、方法和动词</span></a></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://loner1024.github.io/blog/posts/29f45a9f"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://loner1024.github.io/blog/posts/29f45a9f&text=HTTP基础/"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://loner1024.github.io/blog/posts/29f45a9f&title=HTTP基础/"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://loner1024.github.io/blog/posts/29f45a9f&is_video=false&description=HTTP基础/"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=HTTP基础/&body=Check out this article: https://loner1024.github.io/blog/posts/29f45a9f"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://loner1024.github.io/blog/posts/29f45a9f&title=HTTP基础/"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://loner1024.github.io/blog/posts/29f45a9f&title=HTTP基础/"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://loner1024.github.io/blog/posts/29f45a9f&title=HTTP基础/"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://loner1024.github.io/blog/posts/29f45a9f&title=HTTP基础/"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://loner1024.github.io/blog/posts/29f45a9f&name=HTTP基础/&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://loner1024.github.io/blog/posts/29f45a9f&t=HTTP基础/"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2017-2022
+    解添昊
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/blog/">Home</a></li><!--
+     --><!--
+       --><li><a href="/blog/about/">About</a></li><!--
+     --><!--
+       --><li><a href="/blog/archives/">Writing</a></li><!--
+     --><!--
+       --><li><a href="/blog/projects_url">Projects</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+ 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script> 
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script> 
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="far fa-clone"></i>';
+    btn += '</span>'; 
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/blog/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Google Analytics -->
+
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-90533874-1"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'UA-90533874-1');
+    </script>
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Umami Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>
