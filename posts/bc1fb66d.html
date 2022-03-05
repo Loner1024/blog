@@ -13,16 +13,16 @@
 <meta property="og:site_name" content="解添昊的博客">
 <meta property="og:description" content="https:&#x2F;&#x2F;static.googleusercontent.com&#x2F;media&#x2F;research.google.com&#x2F;zh-CN&#x2F;&#x2F;archive&#x2F;mapreduce-osdi04.pdf https:&#x2F;&#x2F;www.bilibili.com&#x2F;video&#x2F;BV1qK4y1p7gT MapReduce 解决了什么问题2004 年谷歌发布 MapReduce，解决在面对大规模数据集的一些问题：">
 <meta property="og:locale">
-<meta property="og:image" content="https://loner1024.github.io/blog/posts/bc1fb66d/mapreduce.jpeg">
-<meta property="og:image" content="https://loner1024.github.io/blog/posts/bc1fb66d/Untitled.png">
-<meta property="og:image" content="https://loner1024.github.io/blog/posts/bc1fb66d/Untitled%201.png">
+<meta property="og:image" content="https://loner1024.github.io/blog/posts/bc1fb66d/mapreduce/mapreduce.jpeg">
+<meta property="og:image" content="https://loner1024.github.io/blog/posts/bc1fb66d/mapreduce/Untitled.png">
+<meta property="og:image" content="https://loner1024.github.io/blog/posts/bc1fb66d/mapreduce/Untitled%201.png">
 <meta property="article:published_time" content="2022-03-05T18:31:41.000Z">
 <meta property="article:modified_time" content="2022-03-05T19:25:56.488Z">
 <meta property="article:author" content="解添昊">
 <meta property="article:tag" content="Papers">
 <meta property="article:tag" content="Distributed">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://loner1024.github.io/blog/posts/bc1fb66d/mapreduce.jpeg">
+<meta name="twitter:image" content="https://loner1024.github.io/blog/posts/bc1fb66d/mapreduce/mapreduce.jpeg">
     
     
       
@@ -172,18 +172,18 @@
 <li>倒排索引</li>
 <li>分布式排序</li>
 </ul>
-<h2 id="如何实现"><a href="#如何实现" class="headerlink" title="如何实现"></a>如何实现</h2><p><img src="/blog/posts/bc1fb66d/mapreduce.jpeg" alt="mapreduce.jpeg"></p>
+<h2 id="如何实现"><a href="#如何实现" class="headerlink" title="如何实现"></a>如何实现</h2><p><img src="/blog/posts/bc1fb66d/mapreduce/mapreduce.jpeg" alt="mapreduce.jpeg"></p>
 <ol>
 <li>用户程序将输入文件切割成 M 块</li>
 <li>MapReduce 程序有一个 Master 节点和多个 Worker 节点，主节点负责将 M 个 Map 任务和 R 个 Reduce 任务分配给 Woker 节点</li>
-<li>Map 任务节点读取输入区块，并解析为 k/v 对，然后输入到用户定义的 map 函数，map 函数产生的中间 k/v 对缓存在内存</li>
+<li>Map 任务节点读取输入区块，并解析为 k&#x2F;v 对，然后输入到用户定义的 map 函数，map 函数产生的中间 k&#x2F;v 对缓存在内存</li>
 <li>缓存的函数被周期性的有划分函数分成 r 块，并写入磁盘，在磁盘中的位置会被传回 Master 节点，Master 节点复制将这些位置传给 Reduce 节点</li>
 <li>Reduce 节点得到通知后，会去磁盘对应的位置读取文件，并按照 key 排序</li>
 <li>排序好后将 key 和与它关联的一组 value 传递给用户定义的 reduce 函数，reduce 函数的输出会写到由 reduce 划分过程划分出来的最终输出文件的末尾</li>
 <li>所有任务完成后，Master 节点唤醒用户程序，程序 return 到用户代码中。</li>
 <li>Master 节点会存储每个 map 和 reduce 任务的状态，和每台机器的 ID</li>
 </ol>
-<p><img src="/blog/posts/bc1fb66d/Untitled.png" alt="Untitled"></p>
+<p><img src="/blog/posts/bc1fb66d/mapreduce/Untitled.png" alt="Untitled"></p>
 <h2 id="工程优化"><a href="#工程优化" class="headerlink" title="工程优化"></a>工程优化</h2><h3 id="Worker-节点容错"><a href="#Worker-节点容错" class="headerlink" title="Worker 节点容错"></a>Worker 节点容错</h3><p>大规模集群每个节点都出问题和每个节点都不出问题的概率都很低，呈正态分布。</p>
 <ol>
 <li>执行 map 任务的节点，通过周期性的 ping-pong 心跳机制让 Master 节点感知心跳，心跳超时则认为任务失败。重新将这个任务传递给其他 worker 节点执行。master 节点需要维护任务队列记录哪些任务未完成，哪些任务已经完成。</li>
@@ -192,7 +192,7 @@
 <li>副作用，所有持久化操作都不可避免产生副作用。解决方案是将执行过程中产生的文件先保存在临时文件中，提交文件时再将其原子重命名为最终文件（Linux 内核中，重命名是原子的）</li>
 </ol>
 <h3 id="加速并行处理的过程"><a href="#加速并行处理的过程" class="headerlink" title="加速并行处理的过程"></a>加速并行处理的过程</h3><p>利用局部性，将 map 任务分配给本来就有所有输入文件的节点上,来减少一次网络调用使得性能得到提升。</p>
-<p><img src="/blog/posts/bc1fb66d/Untitled%201.png" alt="Untitled"></p>
+<p><img src="/blog/posts/bc1fb66d/mapreduce/Untitled%201.png" alt="Untitled"></p>
 <p>任务粒度，一些经验性的配置是 map 任务通常为输入文件总大小除以 64M 的值(这源于底层的分布式文件系统是以 64m 为一个 chuck 进行存储的),reduce 的数量通常是 map 任务的一半。同时 为了发挥机器本身的多核特性,一台机器上可以指定多个 map reduce 任务来执行 通常是任务总数的百分之一。</p>
 <p>备用任务，当仅剩下 1%的任务时,可以启动备用任务,即同时在两个节点上执行相同的任务。这样只要其中一个先返回即可结束整个任务,同时释放未完成的任务所占用的资源。</p>
 
