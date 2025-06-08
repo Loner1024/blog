@@ -8,13 +8,13 @@ export async function GET() {
   <feed xmlns="http://www.w3.org/2005/Atom">
     <title>Guillermo Rauch</title>
     <subtitle>Essays</subtitle>
-    <link href="https://rauchg.com/atom" rel="self"/>
-    <link href="https://rauchg.com/"/>
+    <link href="https://blog.uniix.dev/atom" rel="self"/>
+    <link href="https://blog.uniix.dev/"/>
     <updated>${posts[0].date}</updated>
-    <id>https://rauchg.com/</id>
+    <id>https://blog.uniix.dev/</id>
     <author>
-      <name>Guillermo Rauch</name>
-      <email>rauchg@gmail.com</email>
+      <name>Uniix</name>
+      <email>xth12138@gmail.com</email>
     </author>
     ${posts.slice(0, max).reduce((acc, post) => {
       const dateMatch = post.date.match(/\d{4}/);
@@ -23,7 +23,7 @@ export async function GET() {
         <entry>
           <id>${post.id}</id>
           <title>${post.title}</title>
-          <link href="https://rauchg.com/${dateMatch[0]}/${post.id}"/>
+          <link href="https://blog.uniix.dev/${dateMatch[0]}/${post.id}"/>
           <updated>${post.date}</updated>
         </entry>`;
     }, "")}

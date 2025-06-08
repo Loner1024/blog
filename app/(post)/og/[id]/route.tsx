@@ -50,7 +50,7 @@ export async function GET(_req: Request, props) {
             Guillermo Rauch
           </div>
           <div tw="grow" />
-          <div tw="text-[28px]">rauchg.com</div>
+          <div tw="text-[28px]">blog.uniix.dev</div>
         </header>
 
         <main tw="flex grow pb-3 flex-col items-center justify-center">

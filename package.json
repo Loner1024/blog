@@ -1,7 +1,7 @@
 {
-  "name": "rauchg-blog",
+  "name": "uniix-blog",
   "license": "MIT",
-  "description": "rauchg.com (blog)",
+  "description": "blog.uniix.dev (blog)",
   "dependencies": {
     "@fontsource/inter": "^4.5.15",
     "@fontsource/roboto-mono": "^4.5.10",
