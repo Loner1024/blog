@@ -1,0 +1,92 @@
+export const metadata = {
+  title: '安装和配置我的 k3s 集群',
+  description: '在腾讯云上安装和配置k3s',
+  openGraph: {
+    title: '安装和配置我的 k3s 集群',
+    description: '在腾讯云上安装和配置k3s',
+    images: [{ url: '/og/install-k3s' }]
+  }
+}
+
+## 环境
+
+- 腾讯云轻量云服务器
+- 2H4G
+- Debian 12.0 64bit
+
+## 安装
+
+注意在使用安装脚本时加上`--tls-san`参数，不然后面在本地管理集群时会遇到证书错误。
+
+```bash
+curl -sfL https://rancher-mirror.rancher.cn/k3s/k3s-install.sh | INSTALL_K3S_MIRROR=cn sh -s - --tls-san <your-ip-or-domain>
+```
+
+## 配置镜像加速
+
+修改 Containerd 中 docker.io 对应的 endpoint，文件位于`/etc/rancher/k3s/registries.yaml`
+
+```yaml
+mirrors:
+  "docker.io":
+    endpoint:
+      - "https://mirror.ccs.tencentyun.com"
+```
+还需要修改 Containerd 的配置文件，文件位于`/var/lib/rancher/k3s/agent/etc/containerd/config.toml`，在原有内容后面加上下面的内容
+```toml
+[plugins.cri.registry]
+[plugins.cri.registry.mirrors]
+[plugins.cri.registry.mirrors."docker.io"]
+endpoint = ["https://mirror.ccs.tencentyun.com"]
+```
+重启k3s
+```bash
+systemctl restart k3s
+```
+## 配置私有镜像仓库
+还是编辑`/etc/rancher/k3s/registries.yaml`
+现在mirrors里添加仓库地址，我这里使用的是腾讯云镜像仓库
+```yaml
+mirrors:
+  "ccr.ccs.tencentyun.com":
+    endpoint:
+      - "https:/ccr.ccs.tencentyun.com"
+```
+然后继续添加认证信息
+```yaml
+configs:
+  "ccr.ccs.tencentyun.com":
+    auth:
+      username: <Your Username>
+      password: <Your Password>
+```
+完成后`registries.yaml`是这个样子：
+```yaml
+mirrors:
+  "docker.io":
+    endpoint:
+      - "https://mirror.ccs.tencentyun.com"
+  "ccr.ccs.tencentyun.com":
+    endpoint:
+      - "https://ccr.ccs.tencentyun.com"
+configs:
+  "ccr.ccs.tencentyun.com":
+    auth:
+      username: <Your Username>
+      password: <Your Password>
+```
+包括了 docker.io 的镜像源和自己的私有镜像仓库
+
+
+## 本地访问集群
+k3s 的 kubeconfig 文件位于`/etc/rancher/k3s/k3s.yaml`，复制出来修改server为远程地址，配置到本地kubectl上即可。
+
+
+## Reference
+[快速入门指南](https://docs.k3s.io/zh/quick-start)
+
+[境外镜像拉取加速](https://cloud.tencent.com/document/product/457/51237)
+
+[通过 K3s 配置 containerd 的镜像仓库](http://kingsd.top/2020/12/30/k3s-containerd-registry)
+
+[私有镜像仓库配置参考](https://docs.rancher.cn/docs/k3s/installation/private-registry/_index/)
